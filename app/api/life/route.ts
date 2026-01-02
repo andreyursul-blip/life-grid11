@@ -5,7 +5,7 @@ export const runtime = 'edge';
 export async function GET() {
   return new ImageResponse(
     (
-      <div
+      <div 
         style={{
           fontSize: 60,
           color: 'black',
