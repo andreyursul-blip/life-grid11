@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life in Weeks</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+  }
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  }
+  .label {
+    font-size: 9.5px;
+    fill: #444;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<svg id="grid" viewBox="0 0 370 660"></svg>
+
+<script>
+const birth = new Date(1996, 11, 4);  // 4 декабря 1996
+const today = new Date();
+
+const MS_PER_WEEK = 1000 * 60 * 60 * 24 * 7;
+const weeksLived = Math.floor((today - birth) / MS_PER_WEEK);
+
+const birthdayWeeks = new Set();
+for (let age = 1; age <= 89; age++) {
+  const bday = new Date(1996 + age, 11, 4);
+  birthdayWeeks.add(Math.floor((bday - birth) / MS_PER_WEEK));
+}
+
+const COLS = 52;
+const ROWS = 90;
+const TOTAL = ROWS * COLS;
+
+const DOT = 4.4;
+const GAP = 2.6;
+const CELL = DOT + GAP;
+
+const LEFT = 38;
+const TOP = 38;
+const RIGHT = 12;
+const BOTTOM = 32;
+
+const WIDTH = LEFT + COLS * CELL + RIGHT;
+const HEIGHT = TOP + ROWS * CELL + BOTTOM;
+
+const svg = document.getElementById("grid");
+svg.setAttribute("viewBox", `0 0 ${WIDTH} ${HEIGHT}`);
+
+  
+// Подписи возраста — ровно напротив начала каждого десятилетия
+for (let d = 0; d <= 9; d++) {
+  const age = d * 10;
+  const row = age;                    // 0 → строка 0, 10 → строка 10 и т.д.
+  const y = TOP + row * CELL + CELL / 2;
+  svg.innerHTML += `<text x="${LEFT - 8}" y="${y}" text-anchor="end" class="label">${age}</text>`;
+}
+
+// Тонкие разделители между десятилетиями
+for (let d = 1; d < 9; d++) {
+  const y = TOP + (d * 10) * CELL - GAP / 2;
+  svg.innerHTML += `<line x1="${LEFT-6}" x2="${WIDTH - RIGHT + 6}" y1="${y}" y2="${y}" stroke="#f0f0f0" stroke-width="1"/>`;
+}
+
+// Точки
+for (let w = 0; w < TOTAL; w++) {
+  const row = Math.floor(w / COLS);
+  const col = w % COLS;
+
+  const cx = LEFT + col * CELL + CELL / 2;
+  const cy = TOP + row * CELL + CELL / 2;
+
+  let color = '#e5e5e5'; // будущее
+
+  if (w < weeksLived) {
+    color = birthdayWeeks.has(w) ? '#d32f2f' : '#222222';
+  } else if (w === weeksLived) {
+    color = '#f57c00'; // текущая неделя
+  } else {
+    color = birthdayWeeks.has(w) ? '#d32f2f' : '#e5e5e5';
+  }
+
+  svg.innerHTML += `<circle cx="${cx}" cy="${cy}" r="${DOT/2}" fill="${color}"/>`;
+}
+</script>
+</body>
+</html>
